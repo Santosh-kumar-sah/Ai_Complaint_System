@@ -33,7 +33,7 @@ const authLimiter = rateLimit({
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'SmartComplain API is running', timestamp: new Date() });
-});
+})
 
 app.get('/', (req, res) => {
   res.status(200).send('SmartComplain API is running. Use /api/health for a health check.');
