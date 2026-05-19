@@ -16,6 +16,7 @@ const app = express();
 const allowedOrigins = [
   process.env.CLIENT_URL,
   ...(process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',') : []),
+  'https://ai-complaint-system-qcg9.onrender.com',
   'http://localhost:5173'
 ]
   .map((origin) => origin?.trim())

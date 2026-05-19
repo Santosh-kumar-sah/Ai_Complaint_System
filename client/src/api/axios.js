@@ -1,8 +1,16 @@
 // client/src/api/axios.js | Axios client with auth interceptors | Author: SmartComplain | Date: 2026-05-19
 import axios from 'axios';
 
+const defaultApiBaseUrl = 'https://ai-complaint-system-1-vbja.onrender.com/api';
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const apiBaseUrl = configuredBaseUrl
+  ? configuredBaseUrl.replace(/\/$/, '').endsWith('/api')
+    ? configuredBaseUrl.replace(/\/$/, '')
+    : `${configuredBaseUrl.replace(/\/$/, '')}/api`
+  : defaultApiBaseUrl;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: apiBaseUrl,
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' }
 });
