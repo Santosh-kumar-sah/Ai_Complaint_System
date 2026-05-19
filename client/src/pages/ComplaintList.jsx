@@ -1,7 +1,7 @@
 // client/src/pages/ComplaintList.jsx | Complaint list and filters | Author: SmartComplain | Date: 2026-05-19
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Grid2x2, ListFilter, Search, SortAsc, SortDesc, PlusCircle } from 'lucide-react';
+import { Grid2x2, ListFilter, Search, SortAsc, SortDesc, PlusCircle, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useComplaints from '../hooks/useComplaints';
 import ComplaintTable from '../components/complaints/ComplaintTable';
@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext';
 const ComplaintList = () => {
   const { user } = useAuth();
   const { complaints, loading, total, page, pages, fetchComplaints, deleteComplaint, updateComplaint, setPage } = useComplaints();
-  const [filters, setFilters] = useState({ search: '', category: '', status: '', priority: '', sort: 'newest' });
+  const [filters, setFilters] = useState({ search: '', location: '', category: '', status: '', priority: '', sort: 'newest' });
   const [viewMode, setViewMode] = useState('table');
   const [pageSize] = useState(10);
   const [editItem, setEditItem] = useState(null);
@@ -23,7 +23,7 @@ const ComplaintList = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [filters.search, filters.category, filters.status, filters.priority, filters.sort, setPage]);
+  }, [filters.search, filters.location, filters.category, filters.status, filters.priority, filters.sort, setPage]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -31,13 +31,14 @@ const ComplaintList = () => {
         page,
         limit: pageSize,
         search: filters.search,
+        location: filters.location,
         category: filters.category,
         status: filters.status,
         sort: filters.sort
       });
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [filters.search, filters.category, filters.status, filters.sort, page, pageSize]);
+  }, [filters.search, filters.location, filters.category, filters.status, filters.sort, page, pageSize]);
 
   const filteredComplaints = useMemo(() => {
     return complaints.filter((complaint) => {
@@ -51,7 +52,7 @@ const ComplaintList = () => {
     try {
       await deleteComplaint(complaint._id);
       toast.success('Complaint deleted');
-      fetchComplaints({ page, limit: pageSize, search: filters.search, category: filters.category, status: filters.status, sort: filters.sort });
+      fetchComplaints({ page, limit: pageSize, search: filters.search, location: filters.location, category: filters.category, status: filters.status, sort: filters.sort });
     } catch (error) {
       toast.error(error.response?.data?.message || 'Delete failed');
     }
@@ -67,7 +68,7 @@ const ComplaintList = () => {
       await updateComplaint(editItem._id, editForm);
       toast.success('Complaint updated');
       setEditItem(null);
-      fetchComplaints({ page, limit: pageSize, search: filters.search, category: filters.category, status: filters.status, sort: filters.sort });
+      fetchComplaints({ page, limit: pageSize, search: filters.search, location: filters.location, category: filters.category, status: filters.status, sort: filters.sort });
     } catch (error) {
       toast.error(error.response?.data?.message || 'Update failed');
     }
@@ -93,7 +94,11 @@ const ComplaintList = () => {
           <div className="flex flex-1 flex-wrap gap-3">
             <div className="relative min-w-[240px] flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input value={filters.search} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))} className="input-field pl-11" placeholder="Search title or location" />
+              <input value={filters.search} onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))} className="input-field pl-11" placeholder="Search title" />
+            </div>
+            <div className="relative min-w-[200px]">
+              <MapPin className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <input value={filters.location} onChange={(event) => setFilters((current) => ({ ...current, location: event.target.value }))} className="input-field pl-11" placeholder="Location" />
             </div>
             <select value={filters.category} onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))} className="input-field w-auto min-w-[180px]">
               <option value="">All Categories</option>
@@ -137,7 +142,7 @@ const ComplaintList = () => {
         )
       ) : null}
 
-      <Pagination page={page} pages={pages} onPageChange={(nextPage) => fetchComplaints({ page: nextPage, limit: pageSize, search: filters.search, category: filters.category, status: filters.status, sort: filters.sort })} total={total} limit={pageSize} />
+      <Pagination page={page} pages={pages} onPageChange={(nextPage) => fetchComplaints({ page: nextPage, limit: pageSize, search: filters.search, location: filters.location, category: filters.category, status: filters.status, sort: filters.sort })} total={total} limit={pageSize} />
 
       <Modal
         open={Boolean(editItem)}
