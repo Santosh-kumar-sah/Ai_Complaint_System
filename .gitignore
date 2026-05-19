@@ -1,0 +1,9 @@
+# .gitignore | Repository ignore rules | Author: SmartComplain | Date: 2026-05-19
+node_modules
+.env
+dist
+.DS_Store
+*.log
+client/node_modules
+server/node_modules
+client/dist
