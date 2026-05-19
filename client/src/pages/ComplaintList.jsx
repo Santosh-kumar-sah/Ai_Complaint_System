@@ -1,5 +1,6 @@
 // client/src/pages/ComplaintList.jsx | Complaint list and filters | Author: SmartComplain | Date: 2026-05-19
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Grid2x2, ListFilter, Search, SortAsc, SortDesc, PlusCircle, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -15,7 +16,25 @@ import { useAuth } from '../context/AuthContext';
 const ComplaintList = () => {
   const { user } = useAuth();
   const { complaints, loading, total, page, pages, fetchComplaints, deleteComplaint, updateComplaint, setPage } = useComplaints();
-  const [filters, setFilters] = useState({ search: '', location: '', category: '', status: '', priority: '', sort: 'newest' });
+  const location = useLocation();
+
+  const getInitialFilters = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      search: params.get('search') || '',
+      location: params.get('location') || '',
+      category: params.get('category') || '',
+      status: params.get('status') || '',
+      priority: params.get('priority') || '',
+      sort: params.get('sort') || 'newest'
+    };
+  };
+
+  const [filters, setFilters] = useState(getInitialFilters);
+
+  useEffect(() => {
+    setFilters(getInitialFilters());
+  }, [location.search]);
   const [viewMode, setViewMode] = useState('table');
   const [pageSize] = useState(10);
   const [editItem, setEditItem] = useState(null);

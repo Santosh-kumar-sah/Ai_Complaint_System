@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Menu as HeadlessMenu } from '@headlessui/react';
 import { Bell, ChevronDown, Menu, Search } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getInitials } from '../../utils/helpers';
 
@@ -18,6 +18,8 @@ const Navbar = ({ onToggleSidebar }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const title = useMemo(() => {
     const path = location.pathname.startsWith('/complaints/') && location.pathname !== '/complaints/new' ? '/complaints' : location.pathname;
@@ -43,7 +45,26 @@ const Navbar = ({ onToggleSidebar }) => {
         <button type="button" onClick={() => setSearchOpen((value) => !value)} className="btn-ghost p-2">
           <Search size={18} />
         </button>
-        {searchOpen ? <div className="hidden md:block h-9 w-56 rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-500">Search coming soon</div> : null}
+        {searchOpen ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSearchOpen(false);
+              navigate(`/complaints?search=${encodeURIComponent(searchTerm || '')}`);
+            }}
+            className="hidden md:block"
+          >
+            <div className="h-9 w-56 rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs text-slate-300">
+              <input
+                aria-label="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search title or location"
+                className="w-full bg-transparent text-xs outline-none"
+              />
+            </div>
+          </form>
+        ) : null}
         <button type="button" className="relative btn-ghost p-2">
           <Bell size={18} />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
