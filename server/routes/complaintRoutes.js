@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validate');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 const {
   createComplaint,
   getComplaints,
@@ -21,6 +21,6 @@ router.get('/', getComplaints);
 router.post('/', createValidators, validate, createComplaint);
 router.get('/:id', getComplaintById);
 router.put('/:id', updateValidators, validate, updateComplaint);
-router.delete('/:id', adminOnly, deleteComplaint);
+router.delete('/:id', deleteComplaint);
 
 module.exports = router;

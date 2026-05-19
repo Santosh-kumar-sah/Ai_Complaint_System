@@ -112,6 +112,10 @@ const updateComplaint = async (req, res) => {
     return res.status(403).json({ success: false, message: 'Access denied' });
   }
 
+  if (req.user.role !== 'admin' && (req.body.status || req.body.priority)) {
+    return res.status(403).json({ success: false, message: 'Only admins can change status or priority' });
+  }
+
   if (req.user.role === 'admin') {
     if (req.body.status) complaint.status = req.body.status;
     if (req.body.priority) complaint.priority = req.body.priority;
@@ -136,8 +140,9 @@ const deleteComplaint = async (req, res) => {
   }
 
   const isOwner = String(complaint.user) === String(req.user.id);
-  if (req.user.role !== 'admin' && !isOwner) {
-    return res.status(403).json({ success: false, message: 'Access denied' });
+  const canDelete = req.user.role === 'admin' || (isOwner && complaint.status === 'Pending');
+  if (!canDelete) {
+    return res.status(403).json({ success: false, message: 'You can delete only your pending complaints' });
   }
 
   await complaint.deleteOne();
@@ -145,7 +150,8 @@ const deleteComplaint = async (req, res) => {
 };
 
 const searchComplaints = async (req, res) => {
-  const filter = {};
+  const isAdmin = req.user.role === 'admin';
+  const filter = isAdmin ? {} : { user: req.user.id };
   if (req.query.location) filter.location = { $regex: req.query.location, $options: 'i' };
   if (req.query.category) filter.category = req.query.category;
   const complaints = await Complaint.find(filter).populate('user', 'name email role').sort({ createdAt: -1 });
